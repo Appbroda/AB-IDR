@@ -191,6 +191,16 @@ export const downloadTradplusCSV = (
 
   const rows = [headers.join(",")];
 
+  const escapeCSV = (value) => {
+    if (value === null || value === undefined) return "";
+    const str = String(value);
+
+    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
   units.forEach((unit) => {
     const id = unit.id || "";
     const adUnits = unit.adUnits || [];
@@ -204,12 +214,11 @@ export const downloadTradplusCSV = (
         if (unit.status.success) {
           statusStr = "Success";
         } else {
-          statusStr = JSON.stringify(unit.status).replace(/"/g, '""');
-          statusStr = `"${statusStr}"`;
+          statusStr = JSON.stringify(unit.status);
         }
       }
-
-      rows.push([id, prevId, newId, statusStr].join(","));
+      const rowData = [id, prevId, newId, statusStr].map(escapeCSV);
+      rows.push(rowData.join(","));
     });
   });
 

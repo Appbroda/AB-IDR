@@ -44,9 +44,12 @@ const getTradPlusAdUnits = async (bearKey, secretKey, app_uuid = null) => {
   });
 
   const { clientResponseUnits } = generateNextVersionsForTradPlus(adUnits);
-
+  const unitsToSend = Object.values(clientResponseUnits);
+  if (!unitsToSend || !unitsToSend.length) {
+    throw new Error('No Units found matching the pattern');
+  }
   return {
-    units: Object.values(clientResponseUnits),
+    units: unitsToSend,
   };
 };
 
