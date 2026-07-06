@@ -23,12 +23,12 @@ async function fetchAllAppbrodaAdUnits(secretKey, refreshToken) {
   const appKeys = process.env.IRONSOURCE_APP_KEYS?.split(',').map((key) => key.trim());
 
   if (!appKeys || appKeys.length === 0) {
-    throw new Error('No IronSource app keys configured');
+    throw new Error('No IronSource app keys configured. You can configure them using IRONSOURCE_APP_KEYS in env');
   }
 
   const bearerToken = await ironsourceUtils.getAccessToken(secretKey, refreshToken);
 
-  return Promise.all(
+  const results = await Promise.all(
     appKeys.map(async (appKey) => {
       const instances = await ironsourceUtils.listInstances(appKey, bearerToken);
 
@@ -41,6 +41,14 @@ async function fetchAllAppbrodaAdUnits(secretKey, refreshToken) {
       };
     })
   );
+
+  const hasAnyInstances = results.some(({ instances }) => instances.length > 0);
+
+  if (!hasAnyInstances) {
+    throw new Error('No valid instances found for any configured app key');
+  }
+
+  return results;
 }
 
 async function refreshAdUnits(secretKey, refreshToken) {

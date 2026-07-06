@@ -96,6 +96,9 @@ const getMaxAdUnits = async (managementKey) => {
 
   let waterfallUnits = Object.values(waterfallAdUnitsClient);
   let abUnits = Object.values(abAdUnitsClient);
+  if ((!waterfallUnits || !waterfallUnits.length) && (!abUnits || !abUnits.length)) {
+    throw new Error('No Units found matching the pattern');
+  }
 
   waterfallUnits.forEach((adUnit) => {
     const idForClient = getSegmentId(adUnit) ? `${adUnit.id}/${getSegmentId(adUnit)}` : `${adUnit.id}`;
